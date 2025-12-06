@@ -23,6 +23,8 @@ import {
   Crown,
   Menu,
   X,
+  Shield,
+  Search,
 } from 'lucide-react';
 import { useState } from 'react';
 import { User as SupabaseUser } from '@supabase/supabase-js';
@@ -36,6 +38,8 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: Home },
   { href: '/meal-plans', label: 'Meal Plans', icon: CalendarDays },
   { href: '/food-tracker', label: 'Food Tracker', icon: Apple },
+  { href: '/allergen-schedule', label: 'Allergens', icon: Shield },
+  { href: '/quick-search', label: 'Quick Search', icon: Search },
   { href: '/grocery-list', label: 'Grocery List', icon: ShoppingCart },
 ];
 

@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { babyId, days, mealsPerDay, goal, includeNewFoods } = validationResult.data;
+    const { babyId, days, mealsPerDay, goal, includeNewFoods, batchCookingMode } = validationResult.data;
 
     // Get user subscription info
     const { data: userData } = await supabase
@@ -163,6 +163,7 @@ export async function POST(request: NextRequest) {
       triedFoods: triedFoods || [],
       allergies: baby.allergies || [],
       includeNewFoods: includeNewFoods,
+      batchCookingMode: batchCookingMode,
     });
 
     // Call OpenAI
@@ -229,6 +230,17 @@ export async function POST(request: NextRequest) {
 
         if (mealError) throw mealError;
 
+        // Build batch info if batch cooking mode is enabled
+        const batchInfo = batchCookingMode && meal.make_ahead_notes
+          ? {
+              makeAheadNotes: meal.make_ahead_notes || null,
+              storageInstructions: meal.storage_instructions || null,
+              freezable: meal.freezable || false,
+              reheatInstructions: meal.reheat_instructions || null,
+              prepDayTasks: meal.prep_day_tasks || [],
+            }
+          : null;
+
         // Save recipe
         await supabase.from('recipes').insert({
           meal_id: mealRecord.id,
@@ -239,6 +251,7 @@ export async function POST(request: NextRequest) {
           choking_hazard_notes: meal.new_food_introduced
             ? `New food: ${meal.new_food_introduced}`
             : null,
+          batch_info: batchInfo,
         });
       }
     }

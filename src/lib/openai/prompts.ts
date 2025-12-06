@@ -10,6 +10,7 @@ export function buildMealPlanPrompt({
   triedFoods,
   allergies,
   includeNewFoods,
+  batchCookingMode = false,
 }: {
   babyName: string;
   ageMonths: number;
@@ -19,6 +20,7 @@ export function buildMealPlanPrompt({
   triedFoods: Array<{ name: string }>;
   allergies: string[];
   includeNewFoods: boolean;
+  batchCookingMode?: boolean;
 }) {
   const ageRange = getAgeRange(ageMonths);
   const textureGuideline = AGE_TEXTURE_GUIDELINES[ageRange as keyof typeof AGE_TEXTURE_GUIDELINES];
@@ -27,6 +29,31 @@ export function buildMealPlanPrompt({
   const triedFoodsList = triedFoods.map((f) => f.name).join(', ') || 'none yet';
   const allergiesList = allergies.length > 0 ? allergies.join(', ') : 'none known';
   const mealsToInclude = mealsPerDay.join(', ');
+
+  const batchCookingSection = batchCookingMode ? `
+## BATCH COOKING MODE ENABLED
+Design recipes optimized for meal prep:
+- Create recipes that share base ingredients (e.g., same vegetable puree can be used in multiple meals)
+- Include make-ahead steps that can be done on a "prep day" (weekend)
+- Specify storage instructions (e.g., "Fridge: 3 days" or "Freezer: 2 weeks")
+- Mark which recipes are freezable
+- Include reheating instructions for each meal
+- Group prep tasks by type (chopping, cooking, blending)
+
+For each meal, include these additional fields:
+- "make_ahead_notes": tips for preparing in advance
+- "storage_instructions": how to store and for how long
+- "freezable": true/false
+- "reheat_instructions": how to safely reheat
+- "prep_day_tasks": array of tasks to do on prep day
+` : '';
+
+  const batchCookingFields = batchCookingMode ? `,
+          "make_ahead_notes": "Can be made ahead and stored",
+          "storage_instructions": "Fridge: 3 days, Freezer: 2 weeks",
+          "freezable": true,
+          "reheat_instructions": "Warm gently, stir, check temperature",
+          "prep_day_tasks": ["Cook base ingredient", "Portion into containers"]` : '';
 
   return `You are a baby nutrition expert creating a ${days}-day meal plan for a ${ageMonths}-month-old baby named ${babyName}.
 
@@ -38,7 +65,8 @@ export function buildMealPlanPrompt({
 - Foods already tried: ${triedFoodsList}
 - Include new food introductions: ${includeNewFoods ? 'Yes' : 'No'}
 - Meals per day: ${mealsToInclude}
-
+- Batch cooking mode: ${batchCookingMode ? 'ENABLED' : 'Disabled'}
+${batchCookingSection}
 ## Important Guidelines
 1. All meals must be age-appropriate and safe
 2. Focus on nutrient-dense, whole foods
@@ -66,7 +94,7 @@ Return ONLY valid JSON in this exact structure:
           "instructions": ["Step 1", "Step 2"],
           "prep_time_minutes": 10,
           "texture_notes": "Texture description for this meal",
-          "new_food_introduced": "food name or null"
+          "new_food_introduced": "food name or null"${batchCookingFields}
         }
       ]
     }

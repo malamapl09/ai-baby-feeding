@@ -15,6 +15,7 @@ export const generateMealPlanSchema = z.object({
     'picky_eater',
   ]),
   includeNewFoods: z.boolean().optional().default(true),
+  batchCookingMode: z.boolean().optional().default(false),
 });
 
 export const generateGroceryListSchema = z.object({
@@ -41,6 +42,12 @@ const mealSchema = z.object({
   prep_time_minutes: z.number().optional().default(15),
   texture_notes: z.string().optional(),
   new_food_introduced: z.string().nullable().optional(),
+  // Batch cooking fields (optional)
+  make_ahead_notes: z.string().optional(),
+  storage_instructions: z.string().optional(),
+  freezable: z.boolean().optional(),
+  reheat_instructions: z.string().optional(),
+  prep_day_tasks: z.array(z.string()).optional(),
 });
 
 const daySchema = z.object({

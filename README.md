@@ -9,6 +9,10 @@ AI-powered meal planning for babies aged 6-24 months. Generate personalized, age
 - **Age-Appropriate Recipes** - Simple recipes with texture guidelines and choking hazard notes
 - **Grocery List Generation** - Auto-generated shopping lists from meal plans
 - **Allergen Awareness** - Tracks common allergens and avoids known sensitivities
+- **Allergen Introduction Schedule** - Visual timeline tracking the 9 major allergens
+- **PDF/Image Export** - Export meal plans and grocery lists as PDF or images
+- **Batch Cooking Mode** - Meal prep optimization with make-ahead tips and storage instructions
+- **Quick Search** - Find recipes based on ingredients you have on hand
 - **Freemium Model** - Free tier with 1 plan/week, Pro for unlimited access
 
 ## Tech Stack
@@ -104,14 +108,24 @@ src/
 ├── app/                    # Next.js App Router pages
 │   ├── (auth)/            # Auth pages (login, signup)
 │   ├── (dashboard)/       # Protected dashboard pages
+│   │   ├── allergen-schedule/  # Allergen tracking
+│   │   ├── quick-search/       # Recipe search by ingredients
+│   │   └── ...
 │   ├── api/               # API routes
+│   │   ├── export/        # PDF export endpoints
+│   │   ├── quick-search/  # Recipe search API
+│   │   └── ...
 │   └── page.tsx           # Landing page
 ├── components/
+│   ├── allergen/          # Allergen tracking components
+│   ├── export/            # Export dialog components
+│   ├── quick-search/      # Recipe search components
 │   └── ui/                # shadcn/ui components
 ├── config/
 │   └── constants.ts       # App constants and configuration
 ├── lib/
 │   ├── openai/            # OpenAI client and prompts
+│   ├── pdf/               # PDF generation templates
 │   ├── stripe/            # Stripe client
 │   ├── supabase/          # Supabase clients (server/client)
 │   ├── validations/       # Zod schemas
@@ -138,6 +152,9 @@ docs/
 |-------|--------|-------------|
 | `/api/generate-meal-plan` | POST | Generate AI meal plan |
 | `/api/generate-grocery-list` | POST | Generate grocery list from plan |
+| `/api/export/meal-plan` | POST | Export meal plan as PDF |
+| `/api/export/grocery-list` | POST | Export grocery list as PDF |
+| `/api/quick-search` | POST | Search recipes by ingredients |
 | `/api/stripe/create-checkout` | POST | Create Stripe checkout session |
 | `/api/stripe/webhook` | POST | Handle Stripe webhooks |
 
@@ -188,14 +205,16 @@ docs/
 - [x] Stripe subscription integration
 - [x] Landing page with pricing
 - [x] Security hardening (validation, rate limiting, headers)
+- [x] PDF/Image export for meal plans and grocery lists
+- [x] "What can I make now?" quick search
+- [x] Allergen introduction schedule view
+- [x] Batch cooking/meal prep mode
 
 ### Pending (Nice-to-Have)
-- [ ] PDF/Image export for meal plans
-- [ ] "What can I make now?" quick search
-- [ ] Allergen introduction schedule view
-- [ ] Batch cooking/meal prep mode
 - [ ] Multi-language support
 - [ ] Push notifications
+- [ ] Social sharing features
+- [ ] Meal plan rating/feedback system
 
 ## Contributing
 

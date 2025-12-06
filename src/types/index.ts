@@ -89,6 +89,7 @@ export interface Recipe {
   prep_time_minutes: number;
   texture_notes: string | null;
   choking_hazard_notes: string | null;
+  batch_info?: BatchInfo | null;
 }
 
 export interface Ingredient {
@@ -134,6 +135,21 @@ export interface AIGeneratedMeal {
   prep_time_minutes: number;
   texture_notes: string;
   new_food_introduced: string | null;
+  // Batch cooking fields (only present when batchCookingMode is enabled)
+  make_ahead_notes?: string;
+  storage_instructions?: string;
+  freezable?: boolean;
+  reheat_instructions?: string;
+  prep_day_tasks?: string[];
+}
+
+// Batch Cooking Types
+export interface BatchInfo {
+  makeAheadNotes: string | null;
+  storageInstructions: string | null;
+  freezable: boolean;
+  reheatInstructions: string | null;
+  prepDayTasks: string[];
 }
 
 // UI State Types
@@ -142,4 +158,5 @@ export interface PlanGenerationOptions {
   mealsPerDay: MealType[];
   goal: FeedingGoal;
   includeNewFoods: boolean;
+  batchCookingMode: boolean;
 }

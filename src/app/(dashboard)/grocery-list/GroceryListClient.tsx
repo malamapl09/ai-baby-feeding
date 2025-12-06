@@ -15,6 +15,7 @@ import {
   CalendarDays,
 } from 'lucide-react';
 import Link from 'next/link';
+import { ExportDialog } from '@/components/export/ExportDialog';
 
 interface GroceryListClientProps {
   groceryLists: Array<{
@@ -35,6 +36,7 @@ interface GroceryListClientProps {
 export function GroceryListClient({ groceryLists, selectedPlanId }: GroceryListClientProps) {
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [copied, setCopied] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   const activeList = selectedPlanId
     ? groceryLists.find((l) => l.plan_id === selectedPlanId)
@@ -74,6 +76,28 @@ export function GroceryListClient({ groceryLists, selectedPlanId }: GroceryListC
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleExport = async () => {
+    if (!activeList) return;
+
+    const response = await fetch('/api/export/grocery-list', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ listId: activeList.id }),
+    });
+
+    if (response.ok) {
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `grocery-list-${format(new Date(activeList.meal_plan.start_date), 'yyyy-MM-dd')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }
   };
 
   if (!activeList) {
@@ -138,7 +162,7 @@ export function GroceryListClient({ groceryLists, selectedPlanId }: GroceryListC
               </>
             )}
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setExportDialogOpen(true)}>
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
@@ -252,6 +276,14 @@ export function GroceryListClient({ groceryLists, selectedPlanId }: GroceryListC
           </CardContent>
         </Card>
       )}
+
+      {/* Export Dialog */}
+      <ExportDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        type="grocery-list"
+        onExport={handleExport}
+      />
     </div>
   );
 }

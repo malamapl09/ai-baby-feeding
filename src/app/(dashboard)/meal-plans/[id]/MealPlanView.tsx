@@ -27,8 +27,13 @@ import {
   Download,
   Share2,
   Loader2,
+  Snowflake,
+  Flame,
+  Package,
 } from 'lucide-react';
 import Link from 'next/link';
+import { ExportDialog } from '@/components/export/ExportDialog';
+import { toPng } from 'html-to-image';
 
 interface MealPlanViewProps {
   mealPlan: {
@@ -50,6 +55,13 @@ interface MealPlanViewProps {
       prep_time_minutes: number;
       texture_notes: string | null;
       choking_hazard_notes: string | null;
+      batch_info?: {
+        makeAheadNotes: string | null;
+        storageInstructions: string | null;
+        freezable: boolean;
+        reheatInstructions: string | null;
+        prepDayTasks: string[];
+      } | null;
     } | null;
   }>;
   groceryList: {
@@ -63,6 +75,7 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyName }: MealPla
   const [selectedMeal, setSelectedMeal] = useState<(typeof meals)[0] | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [generatingList, setGeneratingList] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   // Group meals by day
   const mealsByDay: Record<number, typeof meals> = {};
@@ -105,8 +118,62 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyName }: MealPla
     );
   };
 
+  const handleExport = async (format: 'pdf' | 'png', layout?: 'compact' | 'detailed') => {
+    if (format === 'pdf') {
+      const response = await fetch('/api/export/meal-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId: mealPlan.id, format, layout }),
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `meal-plan-${babyName.toLowerCase().replace(/\s+/g, '-')}-${mealPlan.start_date}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
+    } else if (format === 'png') {
+      // For PNG, capture the current view
+      const element = document.getElementById('meal-plan-content');
+      if (element) {
+        const dataUrl = await toPng(element, { quality: 0.95, backgroundColor: '#ffffff' });
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `meal-plan-${babyName.toLowerCase().replace(/\s+/g, '-')}-${mealPlan.start_date}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${mealPlan.days}-Day Meal Plan for ${babyName}`,
+      text: `Check out this meal plan I created for ${babyName}!`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log('Share cancelled or failed');
+      }
+    } else {
+      // Fallback: copy link to clipboard
+      await navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" id="meal-plan-content">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -126,11 +193,11 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyName }: MealPla
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleShare}>
             <Share2 className="w-4 h-4 mr-2" />
             Share
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setExportDialogOpen(true)}>
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
@@ -355,10 +422,74 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyName }: MealPla
                   ))}
                 </ol>
               </div>
+
+              {/* Batch Cooking Info */}
+              {selectedMeal.recipe.batch_info && (
+                <div className="space-y-3 pt-4 border-t">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <Package className="w-4 h-4 text-rose-600" />
+                    Meal Prep Info
+                  </h4>
+
+                  {selectedMeal.recipe.batch_info.makeAheadNotes && (
+                    <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg">
+                      <Clock className="w-4 h-4 text-green-600 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-green-700">Make Ahead</p>
+                        <p className="text-sm text-green-600">{selectedMeal.recipe.batch_info.makeAheadNotes}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedMeal.recipe.batch_info.storageInstructions && (
+                    <div className="flex items-start gap-2 p-3 bg-purple-50 rounded-lg">
+                      <Snowflake className="w-4 h-4 text-purple-600 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-purple-700">
+                          Storage {selectedMeal.recipe.batch_info.freezable && '(Freezable)'}
+                        </p>
+                        <p className="text-sm text-purple-600">{selectedMeal.recipe.batch_info.storageInstructions}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedMeal.recipe.batch_info.reheatInstructions && (
+                    <div className="flex items-start gap-2 p-3 bg-orange-50 rounded-lg">
+                      <Flame className="w-4 h-4 text-orange-600 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-orange-700">Reheating</p>
+                        <p className="text-sm text-orange-600">{selectedMeal.recipe.batch_info.reheatInstructions}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedMeal.recipe.batch_info.prepDayTasks && selectedMeal.recipe.batch_info.prepDayTasks.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Prep Day Tasks:</p>
+                      <ul className="space-y-1">
+                        {selectedMeal.recipe.batch_info.prepDayTasks.map((task, i) => (
+                          <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                            <span className="w-1.5 h-1.5 bg-rose-400 rounded-full" />
+                            {task}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Export Dialog */}
+      <ExportDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        type="meal-plan"
+        onExport={handleExport}
+      />
     </div>
   );
 }

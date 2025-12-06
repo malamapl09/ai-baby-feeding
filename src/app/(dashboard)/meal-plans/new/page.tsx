@@ -27,6 +27,7 @@ export default function NewMealPlanPage() {
   const [mealsPerDay, setMealsPerDay] = useState<MealType[]>(['breakfast', 'lunch', 'dinner']);
   const [goal, setGoal] = useState<FeedingGoal>('balanced_nutrition');
   const [includeNewFoods, setIncludeNewFoods] = useState(true);
+  const [batchCookingMode, setBatchCookingMode] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -95,6 +96,7 @@ export default function NewMealPlanPage() {
           mealsPerDay,
           goal,
           includeNewFoods,
+          batchCookingMode,
         }),
       });
 
@@ -266,7 +268,7 @@ export default function NewMealPlanPage() {
         <CardHeader>
           <CardTitle>Additional Options</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           <div
             className={`flex items-center space-x-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
               includeNewFoods
@@ -283,6 +285,26 @@ export default function NewMealPlanPage() {
               <Label className="cursor-pointer font-medium">Include new food introductions</Label>
               <p className="text-sm text-gray-500">
                 Suggest one new food per day to expand variety
+              </p>
+            </div>
+          </div>
+
+          <div
+            className={`flex items-center space-x-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+              batchCookingMode
+                ? 'border-rose-500 bg-rose-50'
+                : 'border-gray-200 hover:border-gray-300'
+            }`}
+            onClick={() => setBatchCookingMode(!batchCookingMode)}
+          >
+            <Checkbox
+              checked={batchCookingMode}
+              onCheckedChange={(checked) => setBatchCookingMode(checked as boolean)}
+            />
+            <div>
+              <Label className="cursor-pointer font-medium">Batch cooking mode</Label>
+              <p className="text-sm text-gray-500">
+                Optimize for meal prep with make-ahead tips and storage instructions
               </p>
             </div>
           </div>
