@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://babybites.app';
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ai-baby-meal-planner.vercel.app';
 
 // Generate hreflang alternates
 function generateAlternates(locale: string) {

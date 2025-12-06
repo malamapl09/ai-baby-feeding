@@ -1,6 +1,6 @@
 import { APP_NAME } from '@/config/constants';
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://babybites.app';
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ai-baby-meal-planner.vercel.app';
 
 // Organization Schema
 export function generateOrganizationSchema() {

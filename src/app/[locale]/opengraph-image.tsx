@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 import { APP_NAME } from '@/config/constants';
 
 export const runtime = 'edge';
-export const alt = 'BabyBites - AI Baby Meal Planner';
+export const alt = 'Peapod Meals - AI Baby Meal Planner';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
