@@ -119,7 +119,7 @@ src/
 │   └── rate-limit.ts      # Rate limiting utility
 ├── types/
 │   └── index.ts           # TypeScript type definitions
-└── middleware.ts          # Auth middleware
+└── proxy.ts               # Auth proxy (Next.js 16 convention)
 
 supabase/
 └── migrations/            # Database migrations
