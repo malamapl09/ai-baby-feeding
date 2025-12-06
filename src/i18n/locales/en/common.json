@@ -449,6 +449,27 @@
       "button": "Get Started Free"
     }
   },
+  "nutrition": {
+    "title": "Nutrition Facts",
+    "servingSize": "Serving size",
+    "macros": "Macronutrients",
+    "micronutrients": "Baby-Essential Micronutrients",
+    "calories": "Calories",
+    "cal": "cal",
+    "protein": "Protein",
+    "carbs": "Carbohydrates",
+    "fat": "Fat",
+    "fiber": "Fiber",
+    "iron": "Iron",
+    "calcium": "Calcium",
+    "vitaminA": "Vitamin A",
+    "vitaminC": "Vitamin C",
+    "vitaminD": "Vitamin D",
+    "goodIron": "Good iron",
+    "goodCalcium": "Good calcium",
+    "perServing": "Per serving",
+    "babyNote": "Baby Nutrition Note"
+  },
   "calendar": {
     "title": "Add to Calendar",
     "description": "Add your meal plan events to your favorite calendar app",

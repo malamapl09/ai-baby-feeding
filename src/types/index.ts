@@ -91,6 +91,7 @@ export interface Recipe {
   choking_hazard_notes: string | null;
   batch_info?: BatchInfo | null;
   family_version?: FamilyAdaptation | null;
+  nutrition?: NutritionInfo | null;
 }
 
 // Family Meal Adaptation
@@ -154,6 +155,8 @@ export interface AIGeneratedMeal {
   prep_day_tasks?: string[];
   // Family version (only present when includeFamilyVersion is enabled)
   family_version?: FamilyAdaptation;
+  // Nutrition info
+  nutrition: NutritionInfo;
 }
 
 // Batch Cooking Types
@@ -163,6 +166,24 @@ export interface BatchInfo {
   freezable: boolean;
   reheatInstructions: string | null;
   prepDayTasks: string[];
+}
+
+// Nutrition Types
+export interface NutritionInfo {
+  calories: number;
+  protein_grams: number;
+  carbs_grams: number;
+  fat_grams: number;
+  fiber_grams: number;
+  // Baby-focused micronutrients
+  iron_mg: number;
+  calcium_mg: number;
+  vitamin_a_mcg: number;
+  vitamin_c_mg: number;
+  vitamin_d_mcg: number;
+  // Context
+  serving_size: string;
+  age_appropriate_notes: string | null;
 }
 
 // Meal Rating Types

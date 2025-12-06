@@ -449,6 +449,27 @@
       "button": "Comenzar Gratis"
     }
   },
+  "nutrition": {
+    "title": "Información Nutricional",
+    "servingSize": "Tamaño de porción",
+    "macros": "Macronutrientes",
+    "micronutrients": "Micronutrientes Esenciales para Bebés",
+    "calories": "Calorías",
+    "cal": "cal",
+    "protein": "Proteína",
+    "carbs": "Carbohidratos",
+    "fat": "Grasa",
+    "fiber": "Fibra",
+    "iron": "Hierro",
+    "calcium": "Calcio",
+    "vitaminA": "Vitamina A",
+    "vitaminC": "Vitamina C",
+    "vitaminD": "Vitamina D",
+    "goodIron": "Buen hierro",
+    "goodCalcium": "Buen calcio",
+    "perServing": "Por porción",
+    "babyNote": "Nota Nutricional para Bebés"
+  },
   "calendar": {
     "title": "Agregar al Calendario",
     "description": "Agrega los eventos de tu plan de comidas a tu aplicación de calendario favorita",

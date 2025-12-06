@@ -283,6 +283,7 @@ export async function POST(request: NextRequest) {
             : null,
           batch_info: batchInfo,
           family_version: familyVersion,
+          nutrition_info: meal.nutrition || null,
         });
       }
     }

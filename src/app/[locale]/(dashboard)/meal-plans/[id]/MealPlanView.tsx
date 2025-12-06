@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { MEAL_TYPES, FOOD_CATEGORIES, FEEDING_GOALS } from '@/config/constants';
-import { MealType, FoodCategory, FeedingGoal, GroceryItem, MealRating as MealRatingType, FamilyAdaptation } from '@/types';
+import { MealType, FoodCategory, FeedingGoal, GroceryItem, MealRating as MealRatingType, FamilyAdaptation, NutritionInfo } from '@/types';
 import { format, addDays } from 'date-fns';
 import {
   Calendar,
@@ -42,6 +42,7 @@ import { toPng } from 'html-to-image';
 import { MealRating } from '@/components/meal-plan/MealRating';
 import { RatingDialog } from '@/components/meal-plan/RatingDialog';
 import { SwapDialog } from '@/components/meal-plan/SwapDialog';
+import { NutritionLabel } from '@/components/meal-plan/NutritionLabel';
 import { MealSwapSuggestion } from '@/types';
 
 interface MealPlanViewProps {
@@ -72,6 +73,7 @@ interface MealPlanViewProps {
         prepDayTasks: string[];
       } | null;
       family_version?: FamilyAdaptation | null;
+      nutrition_info?: NutritionInfo | null;
     } | null;
   }>;
   groceryList: {
@@ -307,6 +309,12 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyId, babyName, r
                               onRatingClick={() => handleRatingClick(meal)}
                             />
                           </div>
+                          {/* Compact nutrition display */}
+                          {meal.recipe?.nutrition_info && (
+                            <div className="mt-2">
+                              <NutritionLabel nutrition={meal.recipe.nutrition_info} compact />
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
@@ -498,6 +506,13 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyId, babyName, r
                   ))}
                 </ol>
               </div>
+
+              {/* Nutrition Info */}
+              {selectedMeal.recipe.nutrition_info && (
+                <div className="pt-4 border-t">
+                  <NutritionLabel nutrition={selectedMeal.recipe.nutrition_info} />
+                </div>
+              )}
 
               {/* Batch Cooking Info */}
               {selectedMeal.recipe.batch_info && (

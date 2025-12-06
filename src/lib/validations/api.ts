@@ -52,6 +52,24 @@ const familyVersionSchema = z.object({
   cooking_adjustments: z.string().optional(),
 });
 
+// Nutrition schema - baby-focused with macros and key micronutrients
+const nutritionSchema = z.object({
+  calories: z.number().min(0),
+  protein_grams: z.number().min(0),
+  carbs_grams: z.number().min(0),
+  fat_grams: z.number().min(0),
+  fiber_grams: z.number().min(0),
+  // Baby-focused micronutrients
+  iron_mg: z.number().min(0),
+  calcium_mg: z.number().min(0),
+  vitamin_a_mcg: z.number().min(0),
+  vitamin_c_mg: z.number().min(0),
+  vitamin_d_mcg: z.number().min(0),
+  // Context
+  serving_size: z.string(),
+  age_appropriate_notes: z.string().nullable().optional(),
+});
+
 const mealSchema = z.object({
   meal_type: z.enum(['breakfast', 'lunch', 'dinner', 'snack']),
   title: z.string().min(1),
@@ -76,6 +94,8 @@ const mealSchema = z.object({
   prep_day_tasks: z.array(z.string()).optional(),
   // Family version (optional)
   family_version: familyVersionSchema.optional(),
+  // Nutrition info
+  nutrition: nutritionSchema,
 });
 
 const daySchema = z.object({

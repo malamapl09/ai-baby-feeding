@@ -94,6 +94,38 @@ For each meal, include a "family_version" field with:
             "cooking_adjustments": "Optional cooking changes"
           }` : '';
 
+  // Nutrition section - always included
+  const nutritionSection = `
+## NUTRITION INFORMATION
+For EVERY meal, estimate nutrition information based on the ingredients and baby-appropriate portions.
+Use USDA nutrition data as reference. This is critical for parents tracking their baby's nutritional intake.
+
+Key micronutrients for babies:
+- Iron: Critical for brain development, especially 6-12 months (need ~11mg/day)
+- Calcium: Bone development (need ~260mg/day for 6-12mo)
+- Vitamin A: Vision and immune function
+- Vitamin C: Iron absorption and immune health
+- Vitamin D: Bone health (need ~10mcg/day)
+
+For each meal, include a "nutrition" field with all required values.
+`;
+
+  const nutritionFields = `,
+          "nutrition": {
+            "calories": 85,
+            "protein_grams": 3.5,
+            "carbs_grams": 12,
+            "fat_grams": 2.5,
+            "fiber_grams": 1.5,
+            "iron_mg": 1.8,
+            "calcium_mg": 45,
+            "vitamin_a_mcg": 120,
+            "vitamin_c_mg": 15,
+            "vitamin_d_mcg": 0.5,
+            "serving_size": "2 tablespoons",
+            "age_appropriate_notes": "Good iron source for this age"
+          }`;
+
   // Build ratings context if available
   let ratingsContext = '';
   if (ratingsHistory.length > 0) {
@@ -132,7 +164,7 @@ Please favor similar ingredients and flavors to the loved meals, and avoid patte
 - Meals per day: ${mealsToInclude}
 - Batch cooking mode: ${batchCookingMode ? 'ENABLED' : 'Disabled'}
 - Family version mode: ${includeFamilyVersion ? 'ENABLED' : 'Disabled'}
-${batchCookingSection}${familyVersionSection}${ratingsContext}
+${batchCookingSection}${familyVersionSection}${nutritionSection}${ratingsContext}
 ## Important Guidelines
 1. All meals must be age-appropriate and safe
 2. Focus on nutrient-dense, whole foods
@@ -160,7 +192,7 @@ Return ONLY valid JSON in this exact structure:
           "instructions": ["Step 1", "Step 2"],
           "prep_time_minutes": 10,
           "texture_notes": "Texture description for this meal",
-          "new_food_introduced": "food name or null"${batchCookingFields}${familyVersionFields}
+          "new_food_introduced": "food name or null"${batchCookingFields}${familyVersionFields}${nutritionFields}
         }
       ]
     }

@@ -55,10 +55,10 @@
 - Family meal adaptation (adult versions of baby meals)
 - Social sharing (public links with optional PDF)
 - Calendar sync (iCal download + Google Calendar integration)
+- Nutrition labels (baby-focused: iron, calcium, vitamins A/C/D + macros)
 
 ### Future Phases (Planned)
 - Multi-baby profiles
-- Nutrition labels
 - Pediatrician summary export
 - Advanced filters
 - Weekly emails/WhatsApp reminders
