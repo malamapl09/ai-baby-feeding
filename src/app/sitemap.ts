@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://babybites.app';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ai-baby-meal-planner.vercel.app';
   const locales = routing.locales; // ['en', 'es']
 
   // Public routes that should be indexed

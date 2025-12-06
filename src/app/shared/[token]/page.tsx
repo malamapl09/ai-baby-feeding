@@ -7,7 +7,7 @@ interface SharedPlanPageProps {
   params: Promise<{ token: string }>;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://babybites.app';
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ai-baby-meal-planner.vercel.app';
 
 export async function generateMetadata({ params }: SharedPlanPageProps): Promise<Metadata> {
   const { token } = await params;
