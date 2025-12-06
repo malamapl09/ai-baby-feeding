@@ -33,6 +33,7 @@ import {
   Star,
   RefreshCw,
   Users,
+  BookOpen,
 } from 'lucide-react';
 import Link from 'next/link';
 import { ExportDialog } from '@/components/export/ExportDialog';
@@ -305,6 +306,13 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyId, babyName, r
                           </div>
                           <h3 className="font-semibold text-gray-900">{meal.title}</h3>
                           <p className="text-sm text-gray-600 mt-1">{meal.summary}</p>
+                          {/* Recipe hint */}
+                          {meal.recipe && (
+                            <p className="text-xs text-gray-400 mt-2 flex items-center">
+                              <BookOpen className="w-3 h-3 mr-1" />
+                              Tap for full recipe & instructions
+                            </p>
+                          )}
                           {/* Rating display */}
                           <div className="mt-2">
                             <MealRating
@@ -322,8 +330,22 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyId, babyName, r
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                        <ChefHat className="w-5 h-5 text-gray-400" />
                         <div className="flex gap-1">
+                          {/* View Recipe button */}
+                          {meal.recipe && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 p-1 h-auto"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMealClick(meal);
+                              }}
+                            >
+                              <BookOpen className="w-4 h-4 mr-1" />
+                              Recipe
+                            </Button>
+                          )}
                           {/* Quick swap button */}
                           <Button
                             variant="ghost"
