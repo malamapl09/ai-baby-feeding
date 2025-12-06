@@ -24,7 +24,7 @@ export default function NewMealPlanPage() {
 
   // Form state
   const [days, setDays] = useState<3 | 7>(7);
-  const [mealsPerDay, setMealsPerDay] = useState<MealType[]>(['breakfast', 'lunch', 'dinner']);
+  const [mealsPerDay, setMealsPerDay] = useState<MealType[]>(['breakfast', 'morning_snack', 'lunch', 'afternoon_snack', 'dinner']);
   const [goal, setGoal] = useState<FeedingGoal>('balanced_nutrition');
   const [includeNewFoods, setIncludeNewFoods] = useState(true);
   const [batchCookingMode, setBatchCookingMode] = useState(false);

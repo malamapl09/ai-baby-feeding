@@ -44,20 +44,24 @@ interface SharedPlanData {
   };
 }
 
-const mealTypeOrder: MealType[] = ['breakfast', 'lunch', 'dinner', 'snack'];
+const mealTypeOrder: MealType[] = ['breakfast', 'morning_snack', 'lunch', 'afternoon_snack', 'dinner', 'snack'];
 
 const mealTypeLabels: Record<MealType, string> = {
   breakfast: 'Breakfast',
+  morning_snack: 'Morning Snack',
   lunch: 'Lunch',
+  afternoon_snack: 'Afternoon Snack',
   dinner: 'Dinner',
-  snack: 'Snack',
+  snack: 'Snack', // Legacy support
 };
 
 const mealTypeColors: Record<MealType, string> = {
   breakfast: 'bg-amber-100 text-amber-800',
+  morning_snack: 'bg-pink-100 text-pink-800',
   lunch: 'bg-green-100 text-green-800',
+  afternoon_snack: 'bg-purple-100 text-purple-800',
   dinner: 'bg-blue-100 text-blue-800',
-  snack: 'bg-purple-100 text-purple-800',
+  snack: 'bg-purple-100 text-purple-800', // Legacy support
 };
 
 export function SharedPlanView({ token }: SharedPlanViewProps) {

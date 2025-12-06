@@ -180,9 +180,11 @@ const styles = StyleSheet.create({
 
 const MEAL_TYPE_LABELS: Record<MealType, string> = {
   breakfast: 'Breakfast',
+  morning_snack: 'Morning Snack',
   lunch: 'Lunch',
+  afternoon_snack: 'Afternoon Snack',
   dinner: 'Dinner',
-  snack: 'Snack',
+  snack: 'Snack', // Legacy support
 };
 
 const GOAL_LABELS: Record<FeedingGoal, string> = {

@@ -79,7 +79,8 @@ export interface Meal {
   recipe?: Recipe;
 }
 
-export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+// Note: 'snack' is kept for backward compatibility with existing meal plans
+export type MealType = 'breakfast' | 'morning_snack' | 'lunch' | 'afternoon_snack' | 'dinner' | 'snack';
 
 export interface Recipe {
   id: string;

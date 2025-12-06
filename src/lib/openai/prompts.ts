@@ -174,6 +174,8 @@ ${batchCookingSection}${familyVersionSection}${nutritionSection}${ratingsContext
 6. Avoid added salt and sugar
 7. Include variety across food groups
 8. Textures must match the age guideline above
+9. Use exact meal_type values: "breakfast", "morning_snack", "lunch", "afternoon_snack", "dinner"
+10. Morning snacks are typically lighter (fruit, yogurt) while afternoon snacks can be more substantial
 
 ## Required Output Format
 Return ONLY valid JSON in this exact structure:

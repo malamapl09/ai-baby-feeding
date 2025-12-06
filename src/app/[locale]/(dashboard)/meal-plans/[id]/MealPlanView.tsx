@@ -163,11 +163,13 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyId, babyName, r
   };
 
   const sortMeals = (meals: typeof mealsByDay[0]) => {
-    const order: MealType[] = ['breakfast', 'lunch', 'snack', 'dinner'];
-    return meals.sort(
-      (a, b) =>
-        order.indexOf(a.meal_type as MealType) - order.indexOf(b.meal_type as MealType)
-    );
+    const order: MealType[] = ['breakfast', 'morning_snack', 'lunch', 'afternoon_snack', 'dinner'];
+    return meals.sort((a, b) => {
+      // Handle legacy 'snack' type by treating it as afternoon_snack
+      const typeA = a.meal_type === 'snack' ? 'afternoon_snack' : a.meal_type;
+      const typeB = b.meal_type === 'snack' ? 'afternoon_snack' : b.meal_type;
+      return order.indexOf(typeA as MealType) - order.indexOf(typeB as MealType);
+    });
   };
 
   const handleExport = async (format: 'pdf' | 'png', layout?: 'compact' | 'detailed') => {
@@ -285,12 +287,14 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyId, babyName, r
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-4">
                         <div className="text-2xl">
-                          {MEAL_TYPES[meal.meal_type as MealType]?.emoji}
+                          {MEAL_TYPES[meal.meal_type as keyof typeof MEAL_TYPES]?.emoji ||
+                           (meal.meal_type === 'snack' ? '🍪' : '🍽️')}
                         </div>
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <Badge variant="outline" className="text-xs capitalize">
-                              {MEAL_TYPES[meal.meal_type as MealType]?.label}
+                              {MEAL_TYPES[meal.meal_type as keyof typeof MEAL_TYPES]?.label ||
+                               (meal.meal_type === 'snack' ? 'Snack' : meal.meal_type)}
                             </Badge>
                             {meal.recipe?.prep_time_minutes && (
                               <span className="text-xs text-gray-500 flex items-center">
@@ -438,7 +442,7 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyId, babyName, r
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {selectedMeal && MEAL_TYPES[selectedMeal.meal_type as MealType]?.emoji}{' '}
+              {selectedMeal && (MEAL_TYPES[selectedMeal.meal_type as keyof typeof MEAL_TYPES]?.emoji || '🍽️')}{' '}
               {selectedMeal?.title}
             </DialogTitle>
             <DialogDescription>{selectedMeal?.summary}</DialogDescription>

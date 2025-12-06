@@ -31,9 +31,10 @@ export const FOOD_CATEGORIES = {
 
 export const MEAL_TYPES = {
   breakfast: { label: 'Breakfast', emoji: '🌅' },
+  morning_snack: { label: 'Morning Snack', emoji: '🍎' },
   lunch: { label: 'Lunch', emoji: '☀️' },
+  afternoon_snack: { label: 'Afternoon Snack', emoji: '🍪' },
   dinner: { label: 'Dinner', emoji: '🌙' },
-  snack: { label: 'Snack', emoji: '🍪' },
 } as const;
 
 export const AGE_TEXTURE_GUIDELINES = {
