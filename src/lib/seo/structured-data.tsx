@@ -68,18 +68,22 @@ export function generateRecipeSchema(recipe: {
   instructions?: string[];
   image?: string;
   suitableForAgeMonths?: number;
+  datePublished?: string; // ISO date string, optional
 }) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Recipe',
     name: recipe.name,
-    description: recipe.description,
+    description: recipe.suitableForAgeMonths
+      ? `${recipe.description} Suitable for babies ${recipe.suitableForAgeMonths}+ months.`
+      : recipe.description,
     image: recipe.image || `${baseUrl}/og-default.png`,
     author: {
       '@type': 'Organization',
       name: APP_NAME,
     },
-    datePublished: new Date().toISOString(),
+    // Use provided date or omit - don't generate dynamic dates that cause hydration issues
+    ...(recipe.datePublished && { datePublished: recipe.datePublished }),
     prepTime: recipe.prepTime ? `PT${recipe.prepTime}M` : 'PT15M',
     recipeIngredient: recipe.ingredients || [],
     recipeInstructions: (recipe.instructions || []).map((step, index) => ({
@@ -89,9 +93,6 @@ export function generateRecipeSchema(recipe: {
     })),
     recipeCategory: 'Baby Food',
     suitableForDiet: 'https://schema.org/LowSaltDiet',
-    ...(recipe.suitableForAgeMonths && {
-      description: `${recipe.description} Suitable for babies ${recipe.suitableForAgeMonths}+ months.`,
-    }),
   };
 }
 
@@ -125,8 +126,8 @@ export const defaultFAQs = [
       "We offer a 7-day money-back guarantee. If you're not satisfied, contact us for a full refund.",
   },
   {
-    question: 'What age range is BabyBites designed for?',
+    question: `What age range is ${APP_NAME} designed for?`,
     answer:
-      'BabyBites is designed for babies and toddlers aged 6-24 months, covering the entire journey from first solids to toddler meals.',
+      `${APP_NAME} is designed for babies and toddlers aged 6-24 months, covering the entire journey from first solids to toddler meals.`,
   },
 ];

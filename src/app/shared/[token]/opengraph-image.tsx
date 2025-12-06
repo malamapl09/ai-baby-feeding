@@ -62,7 +62,7 @@ export default async function OGImage({
             textAlign: 'center',
           }}
         >
-          {babyName}&apos;s Meal Plan
+          {`${babyName}'s Meal Plan`}
         </div>
 
         {/* Days */}
