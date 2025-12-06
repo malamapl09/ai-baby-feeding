@@ -1,4 +1,4 @@
-export const APP_NAME = 'BabyBites'; // We can change this later
+export const APP_NAME = 'Peapod Meals';
 
 export const FEEDING_GOALS = {
   balanced_nutrition: {

@@ -4,6 +4,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { APP_NAME, SUBSCRIPTION_PLANS } from '@/config/constants';
 import {
+  JsonLd,
+  generateOrganizationSchema,
+  generateSoftwareApplicationSchema,
+  generateFAQSchema,
+  defaultFAQs,
+} from '@/lib/seo/structured-data';
+import {
   Sparkles,
   Calendar,
   Apple,
@@ -73,6 +80,11 @@ const testimonials = [
 export default function LandingPage() {
   return (
     <div className="min-h-screen">
+      {/* JSON-LD Structured Data */}
+      <JsonLd data={generateOrganizationSchema()} />
+      <JsonLd data={generateSoftwareApplicationSchema()} />
+      <JsonLd data={generateFAQSchema(defaultFAQs)} />
+
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
