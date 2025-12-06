@@ -8,8 +8,10 @@ AI-powered meal planning for babies aged 6-24 months. Generate personalized, age
 
 ### Core Features
 - **AI Meal Plan Generation** - GPT-4o-mini powered meal plans customized for your baby
+- **5 Meals Per Day** - Breakfast, morning snack, lunch, afternoon snack, and dinner
 - **Food Introduction Tracker** - Track which foods your baby has tried, liked, or reacted to
 - **Age-Appropriate Recipes** - Simple recipes with texture guidelines and choking hazard notes
+- **Nutrition Labels** - Detailed nutrition info for each meal (calories, protein, iron, calcium, vitamins)
 - **Grocery List Generation** - Auto-generated shopping lists from meal plans
 - **Allergen Awareness** - Tracks common allergens and avoids known sensitivities
 - **Allergen Introduction Schedule** - Visual timeline tracking the 9 major allergens
@@ -272,10 +274,14 @@ docs/
 - [x] Social sharing (public links + PDF)
 - [x] Calendar sync (iCal + Google Calendar)
 
+### Phase 3 - Recent Updates (Completed)
+- [x] Nutrition labels for all meals (calories, macros, iron, calcium, vitamins)
+- [x] Morning and afternoon snacks (5 meals per day)
+- [x] Improved recipe discoverability (visible Recipe button on meal cards)
+
 ### Future Enhancements (Planned)
 - [ ] Push notifications / reminders
 - [ ] Additional languages (Portuguese, French)
-- [ ] Nutrition label information
 - [ ] Pediatrician summary export
 - [ ] Weekly email/WhatsApp reminders
 
