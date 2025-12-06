@@ -1,5 +1,12 @@
 import { AGE_TEXTURE_GUIDELINES, FEEDING_GOALS } from '@/config/constants';
-import { FeedingGoal, MealType } from '@/types';
+import { FeedingGoal, MealType, TasteFeedback } from '@/types';
+
+interface MealRatingHistory {
+  mealTitle: string;
+  rating: number | null;
+  tasteFeedback: TasteFeedback | null;
+  wouldMakeAgain: boolean | null;
+}
 
 export function buildMealPlanPrompt({
   babyName,
@@ -11,6 +18,8 @@ export function buildMealPlanPrompt({
   allergies,
   includeNewFoods,
   batchCookingMode = false,
+  includeFamilyVersion = false,
+  ratingsHistory = [],
 }: {
   babyName: string;
   ageMonths: number;
@@ -21,6 +30,8 @@ export function buildMealPlanPrompt({
   allergies: string[];
   includeNewFoods: boolean;
   batchCookingMode?: boolean;
+  includeFamilyVersion?: boolean;
+  ratingsHistory?: MealRatingHistory[];
 }) {
   const ageRange = getAgeRange(ageMonths);
   const textureGuideline = AGE_TEXTURE_GUIDELINES[ageRange as keyof typeof AGE_TEXTURE_GUIDELINES];
@@ -55,6 +66,60 @@ For each meal, include these additional fields:
           "reheat_instructions": "Warm gently, stir, check temperature",
           "prep_day_tasks": ["Cook base ingredient", "Portion into containers"]` : '';
 
+  // Family version section
+  const familyVersionSection = includeFamilyVersion ? `
+## FAMILY MEAL ADAPTATION
+For each baby meal, also provide a family-friendly adult version that uses the same base ingredients:
+- Add age-appropriate seasonings (salt, pepper, herbs, spices)
+- Suggest protein additions or toppings for adults
+- Include portion multiplier for 2 adults (typically 3x baby portion)
+- Note any cooking adjustments (e.g., "cook longer for crispier texture")
+
+For each meal, include a "family_version" field with:
+- "title": Adult-friendly name
+- "modifications": How to adapt for adults
+- "seasonings": Array of suggested seasonings
+- "additional_ingredients": Optional extras for adults
+- "portion_multiplier": Number (default 3)
+- "cooking_adjustments": Optional cooking changes
+` : '';
+
+  const familyVersionFields = includeFamilyVersion ? `,
+          "family_version": {
+            "title": "Adult version name",
+            "modifications": "How to adapt for adults",
+            "seasonings": ["salt", "pepper", "garlic"],
+            "additional_ingredients": ["sliced avocado", "hot sauce"],
+            "portion_multiplier": 3,
+            "cooking_adjustments": "Optional cooking changes"
+          }` : '';
+
+  // Build ratings context if available
+  let ratingsContext = '';
+  if (ratingsHistory.length > 0) {
+    const lovedMeals = ratingsHistory
+      .filter((r) => r.tasteFeedback === 'loved' || (r.rating && r.rating >= 4))
+      .map((r) => r.mealTitle);
+    const dislikedMeals = ratingsHistory
+      .filter((r) => r.tasteFeedback === 'disliked' || r.tasteFeedback === 'rejected' || (r.rating && r.rating <= 2))
+      .map((r) => r.mealTitle);
+    const wouldNotMakeAgain = ratingsHistory
+      .filter((r) => r.wouldMakeAgain === false)
+      .map((r) => r.mealTitle);
+
+    if (lovedMeals.length > 0 || dislikedMeals.length > 0 || wouldNotMakeAgain.length > 0) {
+      ratingsContext = `
+## MEAL PREFERENCE HISTORY
+Based on past ratings from this baby:
+${lovedMeals.length > 0 ? `- LOVED these meals (include similar ones): ${lovedMeals.join(', ')}` : ''}
+${dislikedMeals.length > 0 ? `- DISLIKED these meals (avoid similar patterns): ${dislikedMeals.join(', ')}` : ''}
+${wouldNotMakeAgain.length > 0 ? `- Parent would NOT make again: ${wouldNotMakeAgain.join(', ')}` : ''}
+
+Please favor similar ingredients and flavors to the loved meals, and avoid patterns from disliked ones.
+`;
+    }
+  }
+
   return `You are a baby nutrition expert creating a ${days}-day meal plan for a ${ageMonths}-month-old baby named ${babyName}.
 
 ## Context
@@ -66,7 +131,8 @@ For each meal, include these additional fields:
 - Include new food introductions: ${includeNewFoods ? 'Yes' : 'No'}
 - Meals per day: ${mealsToInclude}
 - Batch cooking mode: ${batchCookingMode ? 'ENABLED' : 'Disabled'}
-${batchCookingSection}
+- Family version mode: ${includeFamilyVersion ? 'ENABLED' : 'Disabled'}
+${batchCookingSection}${familyVersionSection}${ratingsContext}
 ## Important Guidelines
 1. All meals must be age-appropriate and safe
 2. Focus on nutrient-dense, whole foods
@@ -94,7 +160,7 @@ Return ONLY valid JSON in this exact structure:
           "instructions": ["Step 1", "Step 2"],
           "prep_time_minutes": 10,
           "texture_notes": "Texture description for this meal",
-          "new_food_introduced": "food name or null"${batchCookingFields}
+          "new_food_introduced": "food name or null"${batchCookingFields}${familyVersionFields}
         }
       ]
     }

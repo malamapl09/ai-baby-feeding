@@ -4,15 +4,30 @@ AI-powered meal planning for babies aged 6-24 months. Generate personalized, age
 
 ## Features
 
+### Core Features
 - **AI Meal Plan Generation** - GPT-4o-mini powered meal plans customized for your baby
 - **Food Introduction Tracker** - Track which foods your baby has tried, liked, or reacted to
 - **Age-Appropriate Recipes** - Simple recipes with texture guidelines and choking hazard notes
 - **Grocery List Generation** - Auto-generated shopping lists from meal plans
 - **Allergen Awareness** - Tracks common allergens and avoids known sensitivities
 - **Allergen Introduction Schedule** - Visual timeline tracking the 9 major allergens
+
+### Export & Sharing
 - **PDF/Image Export** - Export meal plans and grocery lists as PDF or images
+- **Social Sharing** - Generate shareable links for meal plans with optional PDF download
+- **Calendar Sync** - Download iCal files or add meals to Google Calendar with reminders
+
+### Advanced Features
 - **Batch Cooking Mode** - Meal prep optimization with make-ahead tips and storage instructions
 - **Quick Search** - Find recipes based on ingredients you have on hand
+- **Meal Rating System** - Rate meals and provide taste feedback that influences future AI suggestions
+- **Meal Swap Suggestions** - AI-powered alternative meal suggestions when you need variety
+- **Family Meal Adaptation** - Get adult-friendly versions of baby meals with seasonings and portion suggestions
+
+### Internationalization
+- **Multi-language Support** - Full support for English and Spanish with locale-based URLs
+
+### Business
 - **Freemium Model** - Free tier with 1 plan/week, Pro for unlimited access
 
 ## Tech Stack
@@ -24,6 +39,9 @@ AI-powered meal planning for babies aged 6-24 months. Generate personalized, age
 - **AI**: OpenAI GPT-4o-mini
 - **Payments**: Stripe (subscriptions + one-time)
 - **Validation**: Zod
+- **i18n**: next-intl (English + Spanish)
+- **Calendar**: ical-generator
+- **PDF**: @react-pdf/renderer
 
 ## Getting Started
 
@@ -105,41 +123,56 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 
 ```
 src/
-├── app/                    # Next.js App Router pages
-│   ├── (auth)/            # Auth pages (login, signup)
-│   ├── (dashboard)/       # Protected dashboard pages
-│   │   ├── allergen-schedule/  # Allergen tracking
-│   │   ├── quick-search/       # Recipe search by ingredients
+├── app/
+│   ├── [locale]/              # Locale-based routing (en, es)
+│   │   ├── (auth)/            # Auth pages (login, signup)
+│   │   ├── (dashboard)/       # Protected dashboard pages
+│   │   │   ├── allergen-schedule/  # Allergen tracking
+│   │   │   ├── meal-plans/         # Meal plan views
+│   │   │   ├── quick-search/       # Recipe search by ingredients
+│   │   │   └── ...
+│   │   └── page.tsx           # Landing page
+│   ├── api/                   # API routes
+│   │   ├── calendar/          # iCal generation endpoints
+│   │   ├── export/            # PDF export endpoints
+│   │   ├── meals/             # Meal rating & swap endpoints
+│   │   ├── share/             # Social sharing endpoints
 │   │   └── ...
-│   ├── api/               # API routes
-│   │   ├── export/        # PDF export endpoints
-│   │   ├── quick-search/  # Recipe search API
-│   │   └── ...
-│   └── page.tsx           # Landing page
+│   └── shared/[token]/        # Public shared meal plan view
 ├── components/
-│   ├── allergen/          # Allergen tracking components
-│   ├── export/            # Export dialog components
-│   ├── quick-search/      # Recipe search components
-│   └── ui/                # shadcn/ui components
+│   ├── allergen/              # Allergen tracking components
+│   ├── calendar/              # Calendar sync components
+│   ├── export/                # Export dialog components
+│   ├── meal-plan/             # Rating & swap components
+│   ├── quick-search/          # Recipe search components
+│   ├── share/                 # Share dialog components
+│   └── ui/                    # shadcn/ui components
 ├── config/
-│   └── constants.ts       # App constants and configuration
+│   └── constants.ts           # App constants and configuration
+├── i18n/
+│   ├── locales/               # Translation files (en, es)
+│   ├── request.ts             # i18n request configuration
+│   └── routing.ts             # Locale routing setup
 ├── lib/
-│   ├── openai/            # OpenAI client and prompts
-│   ├── pdf/               # PDF generation templates
-│   ├── stripe/            # Stripe client
-│   ├── supabase/          # Supabase clients (server/client)
-│   ├── validations/       # Zod schemas
-│   ├── env.ts             # Environment validation
-│   └── rate-limit.ts      # Rate limiting utility
+│   ├── calendar/              # iCal generation utilities
+│   ├── openai/                # OpenAI client and prompts
+│   ├── pdf/                   # PDF generation templates
+│   ├── stripe/                # Stripe client
+│   ├── supabase/              # Supabase clients (server/client)
+│   ├── validations/           # Zod schemas
+│   ├── env.ts                 # Environment validation
+│   └── rate-limit.ts          # Rate limiting utility
 ├── types/
-│   └── index.ts           # TypeScript type definitions
-└── proxy.ts               # Auth proxy (Next.js 16 convention)
+│   └── index.ts               # TypeScript type definitions
+└── proxy.ts                   # Auth proxy (Next.js 16 convention)
 
 supabase/
-└── migrations/            # Database migrations
+└── migrations/                # Database migrations
     ├── 001_initial_schema.sql
     ├── 002_seed_foods.sql
-    └── 003_add_indexes_and_policies.sql
+    ├── 003_add_indexes_and_policies.sql
+    ├── 004_meal_ratings.sql       # Meal rating system
+    └── 005_shared_plans.sql       # Social sharing
 
 docs/
 ├── ai_baby_meal_planner_plan.md   # Technical planning doc
@@ -155,6 +188,11 @@ docs/
 | `/api/export/meal-plan` | POST | Export meal plan as PDF |
 | `/api/export/grocery-list` | POST | Export grocery list as PDF |
 | `/api/quick-search` | POST | Search recipes by ingredients |
+| `/api/meals/[mealId]/rate` | POST/GET | Rate a meal and provide feedback |
+| `/api/meals/[mealId]/swap` | POST | Get AI-powered swap suggestions |
+| `/api/share/create` | POST | Create a shareable link for a meal plan |
+| `/api/share/[token]` | GET | Get shared meal plan by token |
+| `/api/calendar/ical/[planId]` | GET | Download iCal file for meal plan |
 | `/api/stripe/create-checkout` | POST | Create Stripe checkout session |
 | `/api/stripe/webhook` | POST | Handle Stripe webhooks |
 
@@ -195,7 +233,7 @@ docs/
 
 ## Development Status
 
-### Completed
+### Phase 1 - MVP (Completed)
 - [x] User authentication (email + Google OAuth)
 - [x] Baby profile management
 - [x] Food introduction tracker
@@ -210,11 +248,20 @@ docs/
 - [x] Allergen introduction schedule view
 - [x] Batch cooking/meal prep mode
 
-### Pending (Nice-to-Have)
-- [ ] Multi-language support
-- [ ] Push notifications
-- [ ] Social sharing features
-- [ ] Meal plan rating/feedback system
+### Phase 2 - Enhanced Features (Completed)
+- [x] Multi-language support (English + Spanish)
+- [x] Meal plan rating/feedback system
+- [x] Meal swap suggestions (AI-powered alternatives)
+- [x] Family meal adaptation (adult versions)
+- [x] Social sharing (public links + PDF)
+- [x] Calendar sync (iCal + Google Calendar)
+
+### Future Enhancements (Planned)
+- [ ] Push notifications / reminders
+- [ ] Additional languages (Portuguese, French)
+- [ ] Nutrition label information
+- [ ] Pediatrician summary export
+- [ ] Weekly email/WhatsApp reminders
 
 ## Contributing
 

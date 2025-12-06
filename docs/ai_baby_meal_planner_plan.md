@@ -47,12 +47,22 @@
 ---
 
 ## 4. Post-MVP Features
-- Multi-baby profiles.
-- Multi-language.
-- Nutrition labels.
-- Pediatrician summary export.
-- Advanced filters.
-- Weekly emails/WhatsApp reminders.
+
+### Phase 2 (Completed)
+- Multi-language support (English + Spanish with locale-based URLs)
+- Meal plan rating/feedback system (influences AI suggestions)
+- Meal swap suggestions (AI-powered alternatives)
+- Family meal adaptation (adult versions of baby meals)
+- Social sharing (public links with optional PDF)
+- Calendar sync (iCal download + Google Calendar integration)
+
+### Future Phases (Planned)
+- Multi-baby profiles
+- Nutrition labels
+- Pediatrician summary export
+- Advanced filters
+- Weekly emails/WhatsApp reminders
+- Additional languages (Portuguese, French)
 
 ---
 

@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { babyId, days, mealsPerDay, goal, includeNewFoods, batchCookingMode } = validationResult.data;
+    const { babyId, days, mealsPerDay, goal, includeNewFoods, batchCookingMode, includeFamilyVersion } = validationResult.data;
 
     // Get user subscription info
     const { data: userData } = await supabase
@@ -153,6 +153,22 @@ export async function POST(request: NextRequest) {
         prep_notes: string | null;
       }>;
 
+    // Get meal ratings history to influence AI generation
+    const { data: ratingsData } = await supabase
+      .from('meal_ratings')
+      .select('rating, taste_feedback, would_make_again, meals!inner(title)')
+      .eq('baby_id', babyId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ratingsHistory = (ratingsData || []).map((r: any) => ({
+      mealTitle: Array.isArray(r.meals) ? r.meals[0]?.title : r.meals?.title,
+      rating: r.rating,
+      tasteFeedback: r.taste_feedback,
+      wouldMakeAgain: r.would_make_again,
+    })).filter((r: { mealTitle: string }) => r.mealTitle);
+
     // Build the prompt
     const prompt = buildMealPlanPrompt({
       babyName: baby.name,
@@ -164,6 +180,8 @@ export async function POST(request: NextRequest) {
       allergies: baby.allergies || [],
       includeNewFoods: includeNewFoods,
       batchCookingMode: batchCookingMode,
+      includeFamilyVersion: includeFamilyVersion,
+      ratingsHistory: ratingsHistory,
     });
 
     // Call OpenAI
@@ -241,6 +259,18 @@ export async function POST(request: NextRequest) {
             }
           : null;
 
+        // Build family version if included
+        const familyVersion = includeFamilyVersion && meal.family_version
+          ? {
+              title: meal.family_version.title,
+              modifications: meal.family_version.modifications,
+              seasonings: meal.family_version.seasonings || [],
+              additional_ingredients: meal.family_version.additional_ingredients || [],
+              portion_multiplier: meal.family_version.portion_multiplier || 3,
+              cooking_adjustments: meal.family_version.cooking_adjustments || null,
+            }
+          : null;
+
         // Save recipe
         await supabase.from('recipes').insert({
           meal_id: mealRecord.id,
@@ -252,6 +282,7 @@ export async function POST(request: NextRequest) {
             ? `New food: ${meal.new_food_introduced}`
             : null,
           batch_info: batchInfo,
+          family_version: familyVersion,
         });
       }
     }

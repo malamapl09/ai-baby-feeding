@@ -34,28 +34,34 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Extract locale from pathname (e.g., /en/dashboard -> en)
+  const pathname = request.nextUrl.pathname;
+  const localeMatch = pathname.match(/^\/(en|es)(\/|$)/);
+  const locale = localeMatch ? localeMatch[1] : 'en';
+  const pathWithoutLocale = localeMatch ? pathname.replace(/^\/(en|es)/, '') || '/' : pathname;
+
   // Protected routes - redirect to login if not authenticated
-  const protectedPaths = ['/dashboard', '/food-tracker', '/meal-plans', '/settings'];
+  const protectedPaths = ['/dashboard', '/food-tracker', '/meal-plans', '/settings', '/grocery-list', '/allergen-schedule', '/quick-search', '/pricing'];
   const isProtectedPath = protectedPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
+    pathWithoutLocale.startsWith(path)
   );
 
   if (isProtectedPath && !user) {
     const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('redirect', request.nextUrl.pathname);
+    url.pathname = `/${locale}/login`;
+    url.searchParams.set('redirect', pathname);
     return NextResponse.redirect(url);
   }
 
   // Redirect authenticated users away from auth pages
   const authPaths = ['/login', '/signup'];
   const isAuthPath = authPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
+    pathWithoutLocale.startsWith(path)
   );
 
   if (isAuthPath && user) {
     const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
+    url.pathname = `/${locale}/dashboard`;
     return NextResponse.redirect(url);
   }
 

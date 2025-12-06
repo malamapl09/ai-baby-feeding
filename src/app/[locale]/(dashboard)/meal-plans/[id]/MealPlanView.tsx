@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { MEAL_TYPES, FOOD_CATEGORIES, FEEDING_GOALS } from '@/config/constants';
-import { MealType, FoodCategory, FeedingGoal, GroceryItem } from '@/types';
+import { MealType, FoodCategory, FeedingGoal, GroceryItem, MealRating as MealRatingType, FamilyAdaptation } from '@/types';
 import { format, addDays } from 'date-fns';
 import {
   Calendar,
@@ -30,10 +30,19 @@ import {
   Snowflake,
   Flame,
   Package,
+  Star,
+  RefreshCw,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { ExportDialog } from '@/components/export/ExportDialog';
+import { ShareDialog } from '@/components/share/ShareDialog';
+import { CalendarSyncDialog } from '@/components/calendar/CalendarSyncDialog';
 import { toPng } from 'html-to-image';
+import { MealRating } from '@/components/meal-plan/MealRating';
+import { RatingDialog } from '@/components/meal-plan/RatingDialog';
+import { SwapDialog } from '@/components/meal-plan/SwapDialog';
+import { MealSwapSuggestion } from '@/types';
 
 interface MealPlanViewProps {
   mealPlan: {
@@ -62,20 +71,61 @@ interface MealPlanViewProps {
         reheatInstructions: string | null;
         prepDayTasks: string[];
       } | null;
+      family_version?: FamilyAdaptation | null;
     } | null;
   }>;
   groceryList: {
     items: GroceryItem[];
   } | null;
+  babyId: string;
   babyName: string;
+  ratingsMap: Record<string, MealRatingType>;
 }
 
-export function MealPlanView({ mealPlan, meals, groceryList, babyName }: MealPlanViewProps) {
+export function MealPlanView({ mealPlan, meals, groceryList, babyId, babyName, ratingsMap: initialRatingsMap }: MealPlanViewProps) {
   const router = useRouter();
   const [selectedMeal, setSelectedMeal] = useState<(typeof meals)[0] | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [generatingList, setGeneratingList] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
+  const [mealToRate, setMealToRate] = useState<(typeof meals)[0] | null>(null);
+  const [ratingsMap, setRatingsMap] = useState<Record<string, MealRatingType>>(initialRatingsMap);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [calendarDialogOpen, setCalendarDialogOpen] = useState(false);
+
+  const handleRatingClick = (meal: (typeof meals)[0], e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setMealToRate(meal);
+    setRatingDialogOpen(true);
+  };
+
+  const handleRatingSaved = (rating: MealRatingType) => {
+    setRatingsMap((prev) => ({
+      ...prev,
+      [rating.meal_id]: rating,
+    }));
+  };
+
+  // Swap functionality
+  const [swapDialogOpen, setSwapDialogOpen] = useState(false);
+  const [mealToSwap, setMealToSwap] = useState<(typeof meals)[0] | null>(null);
+  const [swappedMeals, setSwappedMeals] = useState<Record<string, MealSwapSuggestion>>({});
+
+  const handleSwapClick = (meal: (typeof meals)[0], e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setMealToSwap(meal);
+    setSwapDialogOpen(true);
+  };
+
+  const handleSwapSelected = (suggestion: MealSwapSuggestion) => {
+    if (mealToSwap) {
+      setSwappedMeals((prev) => ({
+        ...prev,
+        [mealToSwap.id]: suggestion,
+      }));
+    }
+  };
 
   // Group meals by day
   const mealsByDay: Record<number, typeof meals> = {};
@@ -152,24 +202,8 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyName }: MealPla
     }
   };
 
-  const handleShare = async () => {
-    const shareData = {
-      title: `${mealPlan.days}-Day Meal Plan for ${babyName}`,
-      text: `Check out this meal plan I created for ${babyName}!`,
-      url: window.location.href,
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.log('Share cancelled or failed');
-      }
-    } else {
-      // Fallback: copy link to clipboard
-      await navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
-    }
+  const handleShare = () => {
+    setShareDialogOpen(true);
   };
 
   return (
@@ -193,6 +227,10 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyName }: MealPla
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => setCalendarDialogOpen(true)}>
+            <Calendar className="w-4 h-4 mr-2" />
+            Calendar
+          </Button>
           <Button variant="outline" size="sm" onClick={handleShare}>
             <Share2 className="w-4 h-4 mr-2" />
             Share
@@ -261,9 +299,47 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyName }: MealPla
                           </div>
                           <h3 className="font-semibold text-gray-900">{meal.title}</h3>
                           <p className="text-sm text-gray-600 mt-1">{meal.summary}</p>
+                          {/* Rating display */}
+                          <div className="mt-2">
+                            <MealRating
+                              rating={ratingsMap[meal.id]?.rating}
+                              tasteFeedback={ratingsMap[meal.id]?.taste_feedback}
+                              onRatingClick={() => handleRatingClick(meal)}
+                            />
+                          </div>
                         </div>
                       </div>
-                      <ChefHat className="w-5 h-5 text-gray-400" />
+                      <div className="flex flex-col items-end gap-2">
+                        <ChefHat className="w-5 h-5 text-gray-400" />
+                        <div className="flex gap-1">
+                          {/* Quick swap button */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-xs text-gray-500 hover:text-blue-600 p-1 h-auto"
+                            onClick={(e) => handleSwapClick(meal, e)}
+                          >
+                            <RefreshCw className="w-4 h-4 mr-1" />
+                            Swap
+                          </Button>
+                          {/* Quick rate button */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-xs text-gray-500 hover:text-rose-600 p-1 h-auto"
+                            onClick={(e) => handleRatingClick(meal, e)}
+                          >
+                            <Star className="w-4 h-4 mr-1" />
+                            Rate
+                          </Button>
+                        </div>
+                        {/* Show if meal has been swapped */}
+                        {swappedMeals[meal.id] && (
+                          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                            Swapped
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -478,6 +554,64 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyName }: MealPla
                   )}
                 </div>
               )}
+
+              {/* Family Version */}
+              {selectedMeal.recipe.family_version && (
+                <div className="space-y-3 pt-4 border-t">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <Users className="w-4 h-4 text-blue-600" />
+                    Family Version: {selectedMeal.recipe.family_version.title}
+                  </h4>
+
+                  <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg">
+                    <Info className="w-4 h-4 text-blue-600 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-700">How to Adapt</p>
+                      <p className="text-sm text-blue-600">{selectedMeal.recipe.family_version.modifications}</p>
+                    </div>
+                  </div>
+
+                  {selectedMeal.recipe.family_version.seasonings && selectedMeal.recipe.family_version.seasonings.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Suggested Seasonings:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedMeal.recipe.family_version.seasonings.map((seasoning, i) => (
+                          <Badge key={i} variant="secondary" className="text-xs">
+                            {seasoning}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedMeal.recipe.family_version.additional_ingredients && selectedMeal.recipe.family_version.additional_ingredients.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Optional Add-ons:</p>
+                      <ul className="space-y-1">
+                        {selectedMeal.recipe.family_version.additional_ingredients.map((ingredient, i) => (
+                          <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                            <span className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
+                            {ingredient}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <span className="flex items-center gap-1">
+                      <Users className="w-4 h-4" />
+                      Serves: {selectedMeal.recipe.family_version.portion_multiplier}x baby portion
+                    </span>
+                  </div>
+
+                  {selectedMeal.recipe.family_version.cooking_adjustments && (
+                    <p className="text-sm text-gray-500 italic">
+                      Tip: {selectedMeal.recipe.family_version.cooking_adjustments}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
@@ -489,6 +623,48 @@ export function MealPlanView({ mealPlan, meals, groceryList, babyName }: MealPla
         onOpenChange={setExportDialogOpen}
         type="meal-plan"
         onExport={handleExport}
+      />
+
+      {/* Rating Dialog */}
+      {mealToRate && (
+        <RatingDialog
+          open={ratingDialogOpen}
+          onOpenChange={setRatingDialogOpen}
+          mealId={mealToRate.id}
+          mealTitle={mealToRate.title}
+          babyId={babyId}
+          existingRating={ratingsMap[mealToRate.id]}
+          onSaved={handleRatingSaved}
+        />
+      )}
+
+      {/* Swap Dialog */}
+      {mealToSwap && (
+        <SwapDialog
+          open={swapDialogOpen}
+          onOpenChange={setSwapDialogOpen}
+          mealId={mealToSwap.id}
+          mealTitle={swappedMeals[mealToSwap.id]?.title || mealToSwap.title}
+          mealType={mealToSwap.meal_type}
+          onSwapSelected={handleSwapSelected}
+        />
+      )}
+
+      {/* Share Dialog */}
+      <ShareDialog
+        planId={mealPlan.id}
+        planTitle={`${mealPlan.days}-Day Meal Plan for ${babyName}`}
+        isOpen={shareDialogOpen}
+        onClose={() => setShareDialogOpen(false)}
+      />
+
+      {/* Calendar Sync Dialog */}
+      <CalendarSyncDialog
+        planId={mealPlan.id}
+        planTitle={`${mealPlan.days}-Day Meal Plan for ${babyName}`}
+        startDate={mealPlan.start_date}
+        isOpen={calendarDialogOpen}
+        onClose={() => setCalendarDialogOpen(false)}
       />
     </div>
   );

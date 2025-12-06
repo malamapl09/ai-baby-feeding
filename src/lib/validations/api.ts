@@ -16,15 +16,41 @@ export const generateMealPlanSchema = z.object({
   ]),
   includeNewFoods: z.boolean().optional().default(true),
   batchCookingMode: z.boolean().optional().default(false),
+  includeFamilyVersion: z.boolean().optional().default(false),
 });
 
 export const generateGroceryListSchema = z.object({
   planId: z.string().uuid('Invalid plan ID'),
 });
 
+export const mealRatingSchema = z.object({
+  mealId: z.string().uuid('Invalid meal ID'),
+  babyId: z.string().uuid('Invalid baby ID'),
+  rating: z.number().int().min(1).max(5).optional(),
+  tasteFeedback: z.enum(['loved', 'liked', 'neutral', 'disliked', 'rejected']).optional(),
+  wouldMakeAgain: z.boolean().optional(),
+  notes: z.string().max(500).optional(),
+});
+
+export const mealSwapSchema = z.object({
+  mealId: z.string().uuid('Invalid meal ID'),
+  reason: z.enum(['missing_ingredient', 'dont_like', 'want_variety', 'dietary', 'other']).optional(),
+  customReason: z.string().max(200).optional(),
+});
+
 // =============================================
 // AI RESPONSE VALIDATION SCHEMAS
 // =============================================
+
+// Family adaptation schema
+const familyVersionSchema = z.object({
+  title: z.string(),
+  modifications: z.string(),
+  seasonings: z.array(z.string()),
+  additional_ingredients: z.array(z.string()).optional(),
+  portion_multiplier: z.number().optional().default(3),
+  cooking_adjustments: z.string().optional(),
+});
 
 const mealSchema = z.object({
   meal_type: z.enum(['breakfast', 'lunch', 'dinner', 'snack']),
@@ -48,6 +74,8 @@ const mealSchema = z.object({
   freezable: z.boolean().optional(),
   reheat_instructions: z.string().optional(),
   prep_day_tasks: z.array(z.string()).optional(),
+  // Family version (optional)
+  family_version: familyVersionSchema.optional(),
 });
 
 const daySchema = z.object({
@@ -79,6 +107,8 @@ export const groceryListResponseSchema = z.object({
 
 export type GenerateMealPlanInput = z.infer<typeof generateMealPlanSchema>;
 export type GenerateGroceryListInput = z.infer<typeof generateGroceryListSchema>;
+export type MealRatingInput = z.infer<typeof mealRatingSchema>;
+export type MealSwapInput = z.infer<typeof mealSwapSchema>;
 export type MealPlanResponse = z.infer<typeof mealPlanResponseSchema>;
 export type GroceryListResponse = z.infer<typeof groceryListResponseSchema>;
 

@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FEEDING_GOALS, MEAL_TYPES, FREE_TIER_LIMITS } from '@/config/constants';
 import { FeedingGoal, MealType, Baby } from '@/types';
-import { Loader2, Calendar, Sparkles, AlertCircle, Crown } from 'lucide-react';
+import { Loader2, Calendar, Sparkles, AlertCircle, Crown, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NewMealPlanPage() {
@@ -28,6 +28,7 @@ export default function NewMealPlanPage() {
   const [goal, setGoal] = useState<FeedingGoal>('balanced_nutrition');
   const [includeNewFoods, setIncludeNewFoods] = useState(true);
   const [batchCookingMode, setBatchCookingMode] = useState(false);
+  const [includeFamilyVersion, setIncludeFamilyVersion] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -97,6 +98,7 @@ export default function NewMealPlanPage() {
           goal,
           includeNewFoods,
           batchCookingMode,
+          includeFamilyVersion,
         }),
       });
 
@@ -305,6 +307,29 @@ export default function NewMealPlanPage() {
               <Label className="cursor-pointer font-medium">Batch cooking mode</Label>
               <p className="text-sm text-gray-500">
                 Optimize for meal prep with make-ahead tips and storage instructions
+              </p>
+            </div>
+          </div>
+
+          <div
+            className={`flex items-center space-x-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+              includeFamilyVersion
+                ? 'border-rose-500 bg-rose-50'
+                : 'border-gray-200 hover:border-gray-300'
+            }`}
+            onClick={() => setIncludeFamilyVersion(!includeFamilyVersion)}
+          >
+            <Checkbox
+              checked={includeFamilyVersion}
+              onCheckedChange={(checked) => setIncludeFamilyVersion(checked as boolean)}
+            />
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <Label className="cursor-pointer font-medium">Include family versions</Label>
+                <Users className="w-4 h-4 text-gray-400" />
+              </div>
+              <p className="text-sm text-gray-500">
+                Get adult-friendly adaptations of baby meals with seasonings and portion suggestions
               </p>
             </div>
           </div>
