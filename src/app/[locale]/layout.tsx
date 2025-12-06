@@ -151,8 +151,8 @@ export default async function LocaleLayout({
       >
         <NextIntlClientProvider messages={messages}>
           {children}
+          <Toaster position="bottom-right" />
         </NextIntlClientProvider>
-        <Toaster position="bottom-right" />
       </body>
     </html>
   );
