@@ -4,7 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const redirect = searchParams.get('redirect') || '/dashboard';
+  // Default redirect with locale prefix
+  const redirect = searchParams.get('redirect') || '/en/dashboard';
 
   if (code) {
     const supabase = await createClient();
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
 
         // If no baby profile, redirect to onboarding
         if (!babies || babies.length === 0) {
-          return NextResponse.redirect(`${origin}/onboarding`);
+          return NextResponse.redirect(`${origin}/en/onboarding`);
         }
       }
 
@@ -31,5 +32,5 @@ export async function GET(request: Request) {
   }
 
   // Return to login page with error
-  return NextResponse.redirect(`${origin}/login?error=Could not authenticate`);
+  return NextResponse.redirect(`${origin}/en/login?error=Could not authenticate`);
 }

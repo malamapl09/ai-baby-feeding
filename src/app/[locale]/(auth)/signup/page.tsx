@@ -54,15 +54,16 @@ export default function SignupPage() {
     setLoading(false);
   };
 
-  const handleGoogleSignup = async () => {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-  };
+  // Google OAuth - disabled until configured in Supabase
+  // const handleGoogleSignup = async () => {
+  //   const supabase = createClient();
+  //   await supabase.auth.signInWithOAuth({
+  //     provider: 'google',
+  //     options: {
+  //       redirectTo: `${window.location.origin}/auth/callback`,
+  //     },
+  //   });
+  // };
 
   if (success) {
     return (
@@ -135,11 +136,12 @@ export default function SignupPage() {
             />
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
+        <CardFooter className="flex flex-col space-y-4 pt-6">
           <Button type="submit" className="w-full bg-rose-600 hover:bg-rose-700" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             Create Account
           </Button>
+          {/* Google OAuth - disabled until configured
           <div className="relative w-full">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
@@ -174,6 +176,7 @@ export default function SignupPage() {
             </svg>
             Google
           </Button>
+          */}
           <p className="text-sm text-center text-gray-600">
             Already have an account?{' '}
             <Link href="/login" className="text-rose-600 hover:underline">

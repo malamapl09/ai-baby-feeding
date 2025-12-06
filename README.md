@@ -1,6 +1,8 @@
-# BabyBites
+# Peapod Meals
 
 AI-powered meal planning for babies aged 6-24 months. Generate personalized, age-appropriate meal plans based on your baby's developmental stage, tried foods, and nutritional goals.
+
+**Live:** https://ai-baby-meal-planner.vercel.app
 
 ## Features
 
@@ -26,6 +28,13 @@ AI-powered meal planning for babies aged 6-24 months. Generate personalized, age
 
 ### Internationalization
 - **Multi-language Support** - Full support for English and Spanish with locale-based URLs
+
+### SEO
+- **Dynamic Sitemap** - Auto-generated sitemap with hreflang alternates for all locales
+- **Robots.txt** - Proper crawler directives for public/private pages
+- **JSON-LD Structured Data** - Organization, SoftwareApplication, FAQ, and Recipe schemas
+- **Dynamic OG Images** - Auto-generated OpenGraph images for social sharing
+- **Meta Tags** - Comprehensive Twitter cards and OpenGraph metadata
 
 ### Business
 - **Freemium Model** - Free tier with 1 plan/week, Pro for unlimited access
@@ -89,7 +98,9 @@ STRIPE_PRO_ANNUAL_PRICE_ID=price_xxx
 STRIPE_LIFETIME_PRICE_ID=price_xxx
 
 # App
+# IMPORTANT: Must include https:// protocol for production!
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+# For production on Vercel, set to: https://your-domain.vercel.app
 ```
 
 ### Database Setup
@@ -131,6 +142,7 @@ src/
 │   │   │   ├── meal-plans/         # Meal plan views
 │   │   │   ├── quick-search/       # Recipe search by ingredients
 │   │   │   └── ...
+│   │   ├── opengraph-image.tsx # Dynamic OG image generation
 │   │   └── page.tsx           # Landing page
 │   ├── api/                   # API routes
 │   │   ├── calendar/          # iCal generation endpoints
@@ -138,7 +150,9 @@ src/
 │   │   ├── meals/             # Meal rating & swap endpoints
 │   │   ├── share/             # Social sharing endpoints
 │   │   └── ...
-│   └── shared/[token]/        # Public shared meal plan view
+│   ├── shared/[token]/        # Public shared meal plan view
+│   ├── robots.ts              # Robots.txt generation
+│   └── sitemap.ts             # Dynamic sitemap with hreflang
 ├── components/
 │   ├── allergen/              # Allergen tracking components
 │   ├── calendar/              # Calendar sync components
@@ -157,6 +171,8 @@ src/
 │   ├── calendar/              # iCal generation utilities
 │   ├── openai/                # OpenAI client and prompts
 │   ├── pdf/                   # PDF generation templates
+│   ├── seo/                   # SEO utilities
+│   │   └── structured-data.tsx # JSON-LD schema generators
 │   ├── stripe/                # Stripe client
 │   ├── supabase/              # Supabase clients (server/client)
 │   ├── validations/           # Zod schemas
